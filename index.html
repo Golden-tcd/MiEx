@@ -97,9 +97,24 @@
       </div>
     </section>
 
+    <section class="trend-card">
+      <h3>Spending Trend (Last 6 Months)</h3>
+      <canvas id="trendChart"></canvas>
+    </section>
+
     <footer class="app-footer">
       &copy; <span id="footerYear"></span> MiEx &middot; Developed by Golden_TCD
     </footer>
+  </div>
+
+  <div id="confirmModal" class="modal-overlay" style="display:none;">
+    <div class="modal-box">
+      <p class="modal-text">Delete this expense? This can't be undone.</p>
+      <div class="modal-actions">
+        <button id="cancelDelete" class="btn-secondary">Cancel</button>
+        <button id="confirmDelete" class="btn-danger">Delete</button>
+      </div>
+    </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
