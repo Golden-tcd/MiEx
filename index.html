@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MiEx</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Golden Hour aura (light mode background) -->
+  <div class="aura-bg gold-bg" aria-hidden="true">
+    <div class="gold-layer-1"></div>
+    <div class="gold-layer-2"></div>
+  </div>
+
+  <!-- Nightfall aura (dark mode background) -->
+  <div class="aura-bg night-bg" aria-hidden="true">
+    <div class="night-layer-1"></div>
+    <div class="night-layer-2"></div>
+    <div class="night-layer-3"></div>
+    <div class="night-grain">
+      <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+        <filter id="grain">
+          <feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="4" stitchTiles="stitch"/>
+          <feColorMatrix type="matrix" values="0.181 0.608 0.061 0 0.075 0.181 0.608 0.061 0 0.075 0.181 0.608 0.061 0 0.075 0 0 0 1 0"/>
+        </filter>
+        <rect width="100%" height="100%" filter="url(#grain)"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="app">
+    <header class="app-header">
+      <div class="brand">
+        <span class="brand-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></svg>
+        </span>
+        <h1>MiEx</h1>
+      </div>
+      <button id="darkModeToggle" class="icon-btn" title="Toggle dark mode">🌙</button>
+    </header>
+
+    <div class="period-tabs" id="periodTabs">
+      <button class="period-btn active" data-period="all">All Time</button>
+      <button class="period-btn" data-period="week">This Week</button>
+      <button class="period-btn" data-period="month">This Month</button>
+      <button class="period-btn" data-period="year">This Year</button>
+    </div>
+
+    <section class="balance-card">
+      <p class="balance-label" id="balanceLabel">Total Expenses</p>
+      <h2 id="balance">₦0.00</h2>
+    </section>
+
+    <section class="form-card">
+      <h3>Add Expense</h3>
+      <form id="expenseForm">
+        <input type="text" id="name" placeholder="Expense name" required>
+        <input type="number" id="amount" placeholder="Amount" step="0.01" required>
+        <select id="category" required>
+          <option value="Feeding">Feeding</option>
+          <option value="Clothing">Clothing</option>
+          <option value="Transportation">Transportation</option>
+          <option value="Bills">Bills</option>
+          <option value="Others">Others</option>
+        </select>
+        <input type="text" id="customCategory" placeholder="Specify category" style="display:none;">
+        <input type="date" id="date" required>
+        <button type="submit">Add Expense</button>
+      </form>
+    </section>
+
+    <section class="content-grid">
+      <div class="list-card">
+        <div class="list-header">
+          <h3>Expenses</h3>
+          <div class="filters" id="filters">
+            <button class="filter-btn active" data-category="All">All</button>
+            <button class="filter-btn" data-category="Feeding">Feeding</button>
+            <button class="filter-btn" data-category="Clothing">Clothing</button>
+            <button class="filter-btn" data-category="Transportation">Transportation</button>
+            <button class="filter-btn" data-category="Bills">Bills</button>
+            <button class="filter-btn" data-category="Others">Others</button>
+          </div>
+        </div>
+        <ul id="expenseList" class="expense-list"></ul>
+      </div>
+
+      <div class="chart-card">
+        <h3>Spending by Category</h3>
+        <canvas id="categoryChart"></canvas>
+      </div>
+    </section>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
