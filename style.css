@@ -120,14 +120,14 @@ body.dark .glow-bg-dark { opacity: 1; }
   z-index: 1;
   max-width: 900px;
   margin: 0 auto;
-  padding: 32px 18px 60px;
+  padding: 18px 16px 36px;
 }
 
 .app-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
+  margin-bottom: 14px;
 }
 
 .brand {
@@ -172,23 +172,31 @@ body.dark .glow-bg-dark { opacity: 1; }
 /* ===== Period tabs ===== */
 .period-tabs {
   display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
-  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.period-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .period-btn {
-  flex: 1;
-  min-width: 80px;
-  padding: 9px 10px;
-  border-radius: 10px;
+  flex: 1 0 auto;
+  min-width: 0;
+  white-space: nowrap;
+  padding: 8px 12px;
+  border-radius: 9px;
   border: 1px solid var(--card-border);
   background: var(--card-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   color: var(--text);
   font-family: inherit;
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.65s ease-in-out, color 0.65s ease-in-out, border-color 0.65s ease-in-out;
@@ -250,15 +258,16 @@ body.dark .glow-bg-dark { opacity: 1; }
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--card-border);
   border-radius: var(--radius);
-  padding: 20px;
-  margin-bottom: 22px;
+  padding: 16px;
+  margin-bottom: 14px;
   box-shadow: var(--shadow);
   transition: background-color 0.65s ease-in-out, border-color 0.65s ease-in-out, box-shadow 0.65s ease-in-out;
 }
 
 .trend-card h3 {
   margin-top: 0;
-  font-size: 1rem;
+  margin-bottom: 10px;
+  font-size: 0.92rem;
   font-weight: 700;
   letter-spacing: -0.01em;
   color: var(--text);
@@ -338,23 +347,23 @@ body.dark .glow-bg-dark { opacity: 1; }
   background: var(--navy);
   color: #ffffff;
   border-radius: var(--radius);
-  padding: 26px;
+  padding: 18px 20px;
   text-align: center;
-  margin-bottom: 22px;
+  margin-bottom: 14px;
   box-shadow: 0 12px 32px rgba(30, 42, 58, 0.25);
 }
 
 .balance-label {
-  margin: 0 0 6px;
+  margin: 0 0 4px;
   opacity: 0.75;
-  font-size: 0.8rem;
+  font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
 
 .balance-card h2 {
   margin: 0;
-  font-size: 2.4rem;
+  font-size: 1.9rem;
   font-weight: 800;
   letter-spacing: -0.02em;
 }
@@ -365,15 +374,16 @@ body.dark .glow-bg-dark { opacity: 1; }
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--card-border);
   border-radius: var(--radius);
-  padding: 20px;
-  margin-bottom: 22px;
+  padding: 16px;
+  margin-bottom: 14px;
   box-shadow: var(--shadow);
   transition: background-color 0.65s ease-in-out, border-color 0.65s ease-in-out, box-shadow 0.65s ease-in-out;
 }
 
 .form-card h3, .list-card h3, .chart-card h3 {
   margin-top: 0;
-  font-size: 1rem;
+  margin-bottom: 10px;
+  font-size: 0.92rem;
   font-weight: 700;
   letter-spacing: -0.01em;
   color: var(--text);
@@ -383,18 +393,18 @@ body.dark .glow-bg-dark { opacity: 1; }
 #expenseForm {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 8px;
 }
 
 #expenseForm input,
 #expenseForm select {
-  padding: 11px 12px;
+  padding: 9px 11px;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 9px;
   background: rgba(255, 255, 255, 0.5);
   color: var(--text);
   font-family: inherit;
-  font-size: 0.92rem;
+  font-size: 0.87rem;
   transition: background-color 0.65s ease-in-out, border-color 0.65s ease-in-out, color 0.65s ease-in-out;
 }
 
@@ -409,9 +419,9 @@ body.dark #expenseForm select {
 
 #expenseForm button {
   grid-column: span 2;
-  padding: 13px;
+  padding: 11px;
   border: none;
-  border-radius: 10px;
+  border-radius: 9px;
   background: var(--navy);
   color: white;
   font-weight: 600;
@@ -429,7 +439,7 @@ body.dark #expenseForm select {
 .content-grid {
   display: grid;
   grid-template-columns: 1.4fr 1fr;
-  gap: 20px;
+  gap: 14px;
 }
 
 .list-header {
@@ -437,23 +447,23 @@ body.dark #expenseForm select {
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
 }
 
 .filters {
   display: flex;
-  gap: 6px;
+  gap: 5px;
   flex-wrap: wrap;
 }
 
 .filter-btn {
-  padding: 6px 13px;
+  padding: 5px 11px;
   border-radius: 20px;
   border: 1px solid var(--border);
   background: transparent;
   color: var(--text);
   font-family: inherit;
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.65s ease-in-out, color 0.65s ease-in-out, border-color 0.65s ease-in-out;
@@ -468,8 +478,8 @@ body.dark #expenseForm select {
 .expense-list {
   list-style: none;
   padding: 0;
-  margin: 16px 0 0;
-  max-height: 400px;
+  margin: 10px 0 0;
+  max-height: 340px;
   overflow-y: auto;
 }
 
@@ -477,7 +487,7 @@ body.dark #expenseForm select {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 13px 2px;
+  padding: 9px 2px;
   border-bottom: 1px solid var(--border);
   animation: fadeIn 0.65s ease-in-out;
 }
