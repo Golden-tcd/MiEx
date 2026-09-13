@@ -1,0 +1,441 @@
+/* ===== Base tokens ===== */
+:root {
+  --navy: #1E2A3A;
+  --sage: #7FB069;
+  --coral: #FF6B6B;
+  --text: #1E2A3A;
+  --muted: #6B7684;
+  --border: rgba(30, 42, 58, 0.12);
+  --accent-light: #EEF3EC;
+  --card-bg: rgba(255, 255, 255, 0.72);
+  --card-border: rgba(255, 255, 255, 0.5);
+  --radius: 16px;
+  --shadow: 0 8px 30px rgba(30, 42, 58, 0.08);
+}
+
+body.dark {
+  --text: #E8EAED;
+  --muted: #98A2B3;
+  --border: rgba(255, 255, 255, 0.08);
+  --accent-light: #13221A;
+  --card-bg: rgba(16, 19, 26, 0.55);
+  --card-border: rgba(255, 255, 255, 0.06);
+  --shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, sans-serif;
+  color: var(--text);
+  background-color: #faf8f2; /* Golden Hour backdrop */
+  transition: color 0.4s ease, background-color 0.4s ease;
+  -webkit-font-smoothing: antialiased;
+}
+
+body.dark {
+  background-color: #100e0b; /* Nightfall backdrop */
+}
+
+/* ===== Aura backgrounds ===== */
+.aura-bg {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  z-index: -1;
+  transition: opacity 0.4s ease;
+}
+
+/* Golden Hour (light mode) — visible by default */
+.gold-bg { opacity: 1; }
+body.dark .gold-bg { opacity: 0; pointer-events: none; }
+
+.gold-layer-1 {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(rgba(0,0,0,0) 0%, rgba(255,183,77,0.12) 28%, rgb(255,255,255) 18%, rgb(255,138,61) 68%, rgb(183,77,0) 100%);
+  mix-blend-mode: multiply;
+  filter: blur(125px);
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+.gold-layer-2 {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(rgba(0,0,0,0) 0%, rgba(255,183,77,0.22) 34%, rgb(255,255,255) 66%, rgb(255,138,61) 82%, rgb(183,77,0) 100%);
+  mix-blend-mode: multiply;
+  filter: blur(100px);
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+@media (min-width: 768px) {
+  .gold-layer-1 { filter: blur(180px); }
+  .gold-layer-2 { filter: blur(144px); }
+}
+
+/* Nightfall (dark mode) — hidden by default */
+.night-bg { opacity: 0; pointer-events: none; }
+body.dark .night-bg { opacity: 1; pointer-events: auto; }
+
+.night-layer-1 {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(85% 55% at 52% 0%, rgba(35,70,105,0.34) 0%, rgba(24,49,74,0.18) 38%, transparent 76%);
+  mix-blend-mode: screen;
+  filter: blur(25px);
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+.night-layer-2 {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(54,88,120,0.16) 0%, transparent 45%, rgba(0,0,0,0.18) 100%);
+  mix-blend-mode: soft-light;
+  filter: blur(25px);
+  opacity: 0.9;
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+.night-layer-3 {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(42% 35% at 78% 16%, rgba(96,130,155,0.16) 0%, transparent 78%);
+  mix-blend-mode: screen;
+  filter: blur(25px);
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+@media (min-width: 768px) {
+  .night-layer-1, .night-layer-2, .night-layer-3 { filter: blur(36px); }
+}
+
+.night-grain {
+  position: absolute;
+  inset: 0;
+  mix-blend-mode: overlay;
+  opacity: 0.85;
+}
+
+/* ===== Layout ===== */
+.app {
+  position: relative;
+  z-index: 1;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px 18px 60px;
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--navy);
+  color: #ffffff;
+}
+
+.app-header h1 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.icon-btn {
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--card-border);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  font-size: 1.05rem;
+  box-shadow: var(--shadow);
+  transition: background-color 0.4s ease, border-color 0.4s ease;
+}
+
+/* ===== Period tabs ===== */
+.period-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.period-btn {
+  flex: 1;
+  min-width: 80px;
+  padding: 9px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--card-border);
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.period-btn.active {
+  background: var(--navy);
+  color: #ffffff;
+  border-color: var(--navy);
+}
+
+/* ===== Cards (glass) ===== */
+.balance-card {
+  background: var(--navy);
+  color: #ffffff;
+  border-radius: var(--radius);
+  padding: 26px;
+  text-align: center;
+  margin-bottom: 22px;
+  box-shadow: 0 12px 32px rgba(30, 42, 58, 0.25);
+}
+
+.balance-label {
+  margin: 0 0 6px;
+  opacity: 0.75;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.balance-card h2 {
+  margin: 0;
+  font-size: 2.4rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.form-card, .list-card, .chart-card {
+  background: var(--card-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 22px;
+  box-shadow: var(--shadow);
+  transition: background-color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+.form-card h3, .list-card h3, .chart-card h3 {
+  margin-top: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+/* ===== Form ===== */
+#expenseForm {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+#expenseForm input,
+#expenseForm select {
+  padding: 11px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.5);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.92rem;
+  transition: background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease;
+}
+
+body.dark #expenseForm input,
+body.dark #expenseForm select {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+#expenseForm input::placeholder {
+  color: var(--muted);
+}
+
+#expenseForm button {
+  grid-column: span 2;
+  padding: 13px;
+  border: none;
+  border-radius: 10px;
+  background: var(--navy);
+  color: white;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform 0.15s, opacity 0.2s, background-color 0.4s ease;
+}
+
+#expenseForm button:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+/* ===== Content grid ===== */
+.content-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 20px;
+}
+
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.filters {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  padding: 6px 13px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.filter-btn.active {
+  background: var(--navy);
+  color: white;
+  border-color: var(--navy);
+}
+
+.expense-list {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0 0;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.expense-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 13px 2px;
+  border-bottom: 1px solid var(--border);
+  animation: fadeIn 0.3s ease;
+}
+
+.expense-item:last-child {
+  border-bottom: none;
+}
+
+.expense-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.expense-name {
+  font-weight: 600;
+}
+
+.expense-meta {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.expense-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.expense-amount {
+  font-weight: 700;
+  color: var(--navy);
+  transition: color 0.4s ease;
+}
+
+body.dark .expense-amount {
+  color: var(--sage);
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  color: var(--coral);
+  cursor: pointer;
+  font-size: 1rem;
+  opacity: 0.75;
+  transition: opacity 0.15s;
+}
+
+.delete-btn:hover {
+  opacity: 1;
+}
+
+.category-tag {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 10px;
+  background: var(--accent-light);
+  color: var(--sage);
+  font-size: 0.68rem;
+  font-weight: 600;
+  margin-top: 3px;
+  width: fit-content;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 640px) {
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+  #expenseForm {
+    grid-template-columns: 1fr;
+  }
+  #expenseForm button {
+    grid-column: span 1;
+  }
+}
