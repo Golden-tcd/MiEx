@@ -8,6 +8,9 @@ let customTo = null;
 let chart;
 let trendChart;
 let pendingDeleteId = null;
+let searchQuery = '';
+let monthlyBudget = localStorage.getItem('monthlyBudget') ? parseFloat(localStorage.getItem('monthlyBudget')) : null;
+let editingExpenseId = null;
 
 // ---------- DOM Elements ----------
 const form = document.getElementById('expenseForm');
@@ -29,11 +32,105 @@ const customToInput = document.getElementById('customTo');
 const balanceLabel = document.getElementById('balanceLabel');
 const darkModeToggle = document.getElementById('darkModeToggle');
 const footerYear = document.getElementById('footerYear');
+const greetingText = document.getElementById('greetingText');
+const insightBanner = document.getElementById('insightBanner');
+const insightText = document.getElementById('insightText');
+const insightDismissBtn = document.getElementById('insightDismiss');
+const toggleVisibilityBtn = document.getElementById('toggleVisibility');
+let balanceHidden = localStorage.getItem('balanceHidden') === 'true';
+toggleVisibilityBtn.textContent = balanceHidden ? '🙈' : '👁️';
 const confirmModal = document.getElementById('confirmModal');
 const cancelDeleteBtn = document.getElementById('cancelDelete');
 const confirmDeleteBtn = document.getElementById('confirmDelete');
+const avatarEl = document.getElementById('avatar');
+const nameModal = document.getElementById('nameModal');
+const userNameInput = document.getElementById('userNameInput');
+const saveNameBtn = document.getElementById('saveName');
+
+const searchInput = document.getElementById('searchInput');
+
+const budgetContent = document.getElementById('budgetContent');
+const editBudgetBtn = document.getElementById('editBudgetBtn');
+const budgetModal = document.getElementById('budgetModal');
+const budgetInput = document.getElementById('budgetInput');
+const saveBudgetBtn = document.getElementById('saveBudget');
+const clearBudgetBtn = document.getElementById('clearBudget');
+
+const editModal = document.getElementById('editModal');
+const editNameInput = document.getElementById('editName');
+const editAmountInput = document.getElementById('editAmount');
+const editCategoryInput = document.getElementById('editCategory');
+const editCustomCategoryInput = document.getElementById('editCustomCategory');
+const editDateInput = document.getElementById('editDate');
+const cancelEditBtn = document.getElementById('cancelEdit');
+const saveEditBtn = document.getElementById('saveEdit');
 
 footerYear.textContent = new Date().getFullYear();
+
+// ---------- User Name ----------
+function getUserName() {
+  return localStorage.getItem('userName') || '';
+}
+
+function openNameModal() {
+  userNameInput.value = getUserName();
+  nameModal.style.display = 'flex';
+  userNameInput.focus();
+}
+
+function saveUserName() {
+  const val = userNameInput.value.trim();
+  if (val) {
+    localStorage.setItem('userName', val);
+    nameModal.style.display = 'none';
+    setGreeting();
+    updateAvatar();
+  }
+}
+
+avatarEl.addEventListener('click', openNameModal);
+saveNameBtn.addEventListener('click', saveUserName);
+userNameInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') saveUserName();
+});
+nameModal.addEventListener('click', (e) => {
+  // Only allow closing without a name if one is already saved
+  if (e.target === nameModal && getUserName()) {
+    nameModal.style.display = 'none';
+  }
+});
+
+function updateAvatar() {
+  const name = getUserName();
+  avatarEl.textContent = name ? name.charAt(0).toUpperCase() : '?';
+}
+
+// ---------- Greeting ----------
+function setGreeting() {
+  const hour = new Date().getHours();
+  let greeting = 'Good evening';
+  if (hour < 12) greeting = 'Good morning';
+  else if (hour < 17) greeting = 'Good afternoon';
+
+  const name = getUserName();
+  greetingText.textContent = name ? `${greeting}, ${name} 👋` : `${greeting} 👋`;
+}
+
+setGreeting();
+updateAvatar();
+
+// Prompt for a name on first visit
+if (!getUserName()) {
+  openNameModal();
+}
+
+// ---------- Balance Visibility Toggle ----------
+toggleVisibilityBtn.addEventListener('click', () => {
+  balanceHidden = !balanceHidden;
+  localStorage.setItem('balanceHidden', balanceHidden);
+  toggleVisibilityBtn.textContent = balanceHidden ? '🙈' : '👁️';
+  renderBalance();
+});
 
 categoryInput.addEventListener('change', () => {
   if (categoryInput.value === 'Others') {
@@ -44,6 +141,21 @@ categoryInput.addEventListener('change', () => {
     customCategoryInput.required = false;
     customCategoryInput.value = '';
   }
+});
+
+editCategoryInput.addEventListener('change', () => {
+  if (editCategoryInput.value === 'Others') {
+    editCustomCategoryInput.style.display = 'block';
+  } else {
+    editCustomCategoryInput.style.display = 'none';
+    editCustomCategoryInput.value = '';
+  }
+});
+
+// ---------- Search ----------
+searchInput.addEventListener('input', () => {
+  searchQuery = searchInput.value.trim().toLowerCase();
+  renderList();
 });
 
 // Default date to today
@@ -185,23 +297,25 @@ function formatDateNice(str) {
 }
 
 function currentPeriodLabel() {
-  if (activePeriod === 'all') return 'Total Expenses';
+  if (activePeriod === 'all') return 'Total Spent';
   if (activePeriod === 'custom') {
-    if (!customFrom || !customTo) return 'Total Expenses (Custom Range)';
-    return `Total Expenses (${formatDateNice(customFrom)} – ${formatDateNice(customTo)})`;
+    if (!customFrom || !customTo) return 'Total Spent (Custom Range)';
+    return `Total Spent (${formatDateNice(customFrom)} – ${formatDateNice(customTo)})`;
   }
   let valLabel = '';
   if (activePeriod === 'month') valLabel = monthLabel(periodValue);
   else if (activePeriod === 'week') valLabel = weekLabel(periodValue);
   else if (activePeriod === 'year') valLabel = periodValue;
-  return `Total Expenses (${valLabel})`;
+  return `Total Spent (${valLabel})`;
 }
 
 // ---------- Render Balance ----------
 function renderBalance() {
   const periodExpenses = getPeriodExpenses();
   const total = periodExpenses.reduce((sum, e) => sum + e.amount, 0);
-  balanceEl.textContent = `₦${total.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  balanceEl.textContent = balanceHidden
+    ? '₦ ••••••'
+    : `₦${total.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   balanceLabel.textContent = currentPeriodLabel();
 }
 
@@ -220,14 +334,20 @@ function renderList() {
     filtered = periodExpenses.filter(e => e.category === activeFilter);
   }
 
+  if (searchQuery) {
+    filtered = filtered.filter(e => e.name.toLowerCase().includes(searchQuery));
+  }
+
   if (filtered.length === 0) {
-    expenseList.innerHTML = `<p style="color: var(--muted); text-align:center; padding: 20px 0;">No expenses in this period.</p>`;
+    const message = searchQuery ? 'No expenses match your search.' : 'No expenses in this period.';
+    expenseList.innerHTML = `<p style="color: var(--muted); text-align:center; padding: 20px 0;">${message}</p>`;
     return;
   }
 
   [...filtered].reverse().forEach(expense => {
     const li = document.createElement('li');
     li.className = 'expense-item';
+    li.dataset.id = expense.id;
     li.innerHTML = `
       <div class="expense-info">
         <span class="expense-name">${expense.name}</span>
@@ -256,6 +376,12 @@ function renderChart() {
     return periodExpenses.filter(e => e.category === cat).reduce((sum, e) => sum + e.amount, 0);
   });
 
+  const grandTotal = totals.reduce((sum, v) => sum + v, 0);
+  const isDark = document.body.classList.contains('dark');
+  const catColors = isDark
+    ? ['#F2967F', '#BBA3F0', '#79D2D9', '#F6D06A', '#9089B0']
+    : ['#F0836C', '#A98FE0', '#5FBFC7', '#F6C453', '#B9B2C4'];
+
   const ctx = document.getElementById('categoryChart').getContext('2d');
 
   if (chart) chart.destroy();
@@ -266,18 +392,58 @@ function renderChart() {
       labels: categories,
       datasets: [{
         data: totals,
-        backgroundColor: ['#1E2A3A', '#7FB069', '#5C7A99', '#D9A566', '#FF6B6B'],
-        borderWidth: 2,
-        borderColor: document.body.classList.contains('dark') ? '#10131a' : '#ffffff',
+        backgroundColor: catColors,
+        borderWidth: 3,
+        borderColor: isDark ? '#161616' : '#FFFFFF',
         hoverOffset: 6
       }]
     },
     options: {
       responsive: true,
+      maintainAspectRatio: false,
+      cutout: '68%',
       plugins: {
-        legend: { position: 'bottom', labels: { boxWidth: 12 } }
+        legend: {
+          position: 'bottom',
+          labels: {
+            boxWidth: 10,
+            color: isDark ? '#F0EBE3' : '#2E2418',
+            generateLabels: (chartInstance) => {
+              const data = chartInstance.data;
+              return data.labels.map((label, i) => {
+                const value = data.datasets[0].data[i];
+                const pct = grandTotal > 0 ? Math.round((value / grandTotal) * 100) : 0;
+                return {
+                  text: `${label}  ${pct}%`,
+                  fillStyle: data.datasets[0].backgroundColor[i],
+                  strokeStyle: data.datasets[0].backgroundColor[i],
+                  index: i
+                };
+              });
+            }
+          }
+        }
       }
-    }
+    },
+    plugins: [{
+      id: 'centerText',
+      afterDraw: (chartInstance) => {
+        const { ctx, chartArea } = chartInstance;
+        if (!chartArea) return;
+        const x = (chartArea.left + chartArea.right) / 2;
+        const y = (chartArea.top + chartArea.bottom) / 2;
+        ctx.save();
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = isDark ? '#F0EBE3' : '#2E2418';
+        ctx.font = '700 14px Quicksand, sans-serif';
+        ctx.fillText(`₦${grandTotal.toLocaleString('en-NG')}`, x, y - 6);
+        ctx.font = '600 11px Nunito, sans-serif';
+        ctx.fillStyle = isDark ? '#9C9690' : '#8C7C6B';
+        ctx.fillText('Total Spent', x, y + 12);
+        ctx.restore();
+      }
+    }]
   });
 }
 
@@ -300,7 +466,7 @@ function renderTrendChart() {
   );
 
   const isDark = document.body.classList.contains('dark');
-  const barColor = isDark ? '#7FB069' : '#1E2A3A';
+  const barColor = isDark ? '#FF9D45' : '#F68B1E';
 
   const ctx = document.getElementById('trendChart').getContext('2d');
 
@@ -319,6 +485,7 @@ function renderTrendChart() {
     },
     options: {
       responsive: true,
+      maintainAspectRatio: false,
       plugins: {
         legend: { display: false },
         tooltip: {
@@ -328,14 +495,140 @@ function renderTrendChart() {
         }
       },
       scales: {
+        x: {
+          ticks: { color: isDark ? '#9C9690' : '#8C7C6B', font: { family: 'Nunito' } },
+          grid: { display: false }
+        },
         y: {
           beginAtZero: true,
-          ticks: { callback: (v) => '₦' + v.toLocaleString() }
+          ticks: {
+            color: isDark ? '#9C9690' : '#8C7C6B',
+            font: { family: 'Nunito' },
+            callback: (v) => '₦' + v.toLocaleString()
+          },
+          grid: { color: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(46,36,24,0.06)' }
         }
       }
     }
   });
 }
+
+// ---------- Insight Banner ----------
+const INSIGHT_DISMISS_DURATION = 4 * 60 * 60 * 1000; // 4 hours
+
+function isInsightDismissed() {
+  const dismissedAt = sessionStorage.getItem('insightDismissedAt');
+  if (!dismissedAt) return false;
+  return (Date.now() - parseInt(dismissedAt, 10)) < INSIGHT_DISMISS_DURATION;
+}
+
+function renderInsight() {
+  const now = new Date();
+  const thisMonthKey = monthKey(now);
+  const lastMonthKey = monthKey(new Date(now.getFullYear(), now.getMonth() - 1, 1));
+
+  const thisMonthTotal = expenses
+    .filter(e => monthKey(new Date(e.date + 'T00:00:00')) === thisMonthKey)
+    .reduce((sum, e) => sum + e.amount, 0);
+
+  const lastMonthTotal = expenses
+    .filter(e => monthKey(new Date(e.date + 'T00:00:00')) === lastMonthKey)
+    .reduce((sum, e) => sum + e.amount, 0);
+
+  if (lastMonthTotal === 0 || isInsightDismissed()) {
+    insightBanner.style.display = 'none';
+    return;
+  }
+
+  const diff = lastMonthTotal - thisMonthTotal;
+  const diffAbs = Math.abs(diff).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  insightBanner.style.display = 'flex';
+  if (diff >= 0) {
+    insightBanner.classList.remove('warn');
+    insightBanner.querySelector('.insight-icon').textContent = '🌿';
+    insightText.textContent = `You're ₦${diffAbs} below last month's spending.`;
+  } else {
+    insightBanner.classList.add('warn');
+    insightBanner.querySelector('.insight-icon').textContent = '⚠️';
+    insightText.textContent = `You're ₦${diffAbs} above last month's spending.`;
+  }
+}
+
+insightDismissBtn.addEventListener('click', () => {
+  sessionStorage.setItem('insightDismissedAt', Date.now().toString());
+  insightBanner.style.display = 'none';
+});
+
+// ---------- Budget ----------
+function renderBudget() {
+  const now = new Date();
+  const thisMonthKey = monthKey(now);
+  const spent = expenses
+    .filter(e => monthKey(new Date(e.date + 'T00:00:00')) === thisMonthKey)
+    .reduce((sum, e) => sum + e.amount, 0);
+
+  if (monthlyBudget === null || isNaN(monthlyBudget)) {
+    budgetContent.innerHTML = `<p class="budget-empty-text">Set a monthly budget to track your spending goals.</p>`;
+    return;
+  }
+
+  const pct = Math.min(100, Math.round((spent / monthlyBudget) * 100));
+  let stateClass = '';
+  if (spent >= monthlyBudget) stateClass = 'danger';
+  else if (pct >= 80) stateClass = 'warn';
+
+  const spentStr = spent.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const budgetStr = monthlyBudget.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  let alertHtml = '';
+  if (spent >= monthlyBudget) {
+    const over = (spent - monthlyBudget).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    alertHtml = `<p class="budget-alert danger">You've exceeded your monthly budget by ₦${over}.</p>`;
+  } else if (pct >= 80) {
+    alertHtml = `<p class="budget-alert warn">You've used ${pct}% of your monthly budget.</p>`;
+  }
+
+  budgetContent.innerHTML = `
+    <div class="budget-stats">
+      <span>₦${spentStr} spent</span>
+      <span>of ₦${budgetStr}</span>
+    </div>
+    <div class="budget-progress-track">
+      <div class="budget-progress-fill ${stateClass}" style="width:${pct}%"></div>
+    </div>
+    ${alertHtml}
+  `;
+}
+
+editBudgetBtn.addEventListener('click', () => {
+  budgetInput.value = monthlyBudget !== null ? monthlyBudget : '';
+  budgetModal.style.display = 'flex';
+  budgetInput.focus();
+});
+
+saveBudgetBtn.addEventListener('click', () => {
+  const val = parseFloat(budgetInput.value);
+  if (!isNaN(val) && val > 0) {
+    monthlyBudget = val;
+    localStorage.setItem('monthlyBudget', val);
+    budgetModal.style.display = 'none';
+    renderBudget();
+  }
+});
+
+clearBudgetBtn.addEventListener('click', () => {
+  monthlyBudget = null;
+  localStorage.removeItem('monthlyBudget');
+  budgetModal.style.display = 'none';
+  renderBudget();
+});
+
+budgetModal.addEventListener('click', (e) => {
+  if (e.target === budgetModal) {
+    budgetModal.style.display = 'none';
+  }
+});
 
 // ---------- Render All ----------
 function renderAll() {
@@ -343,6 +636,8 @@ function renderAll() {
   renderList();
   renderChart();
   renderTrendChart();
+  renderInsight();
+  renderBudget();
 }
 
 // ---------- Add Expense ----------
@@ -374,9 +669,16 @@ form.addEventListener('submit', (e) => {
 
 // ---------- Delete Expense (with confirm) ----------
 expenseList.addEventListener('click', (e) => {
-  if (e.target.classList.contains('delete-btn')) {
-    pendingDeleteId = Number(e.target.dataset.id);
+  const deleteBtn = e.target.closest('.delete-btn');
+  if (deleteBtn) {
+    pendingDeleteId = Number(deleteBtn.dataset.id);
     confirmModal.style.display = 'flex';
+    return;
+  }
+
+  const item = e.target.closest('.expense-item');
+  if (item) {
+    openEditModal(Number(item.dataset.id));
   }
 });
 
@@ -401,6 +703,60 @@ confirmModal.addEventListener('click', (e) => {
     pendingDeleteId = null;
     confirmModal.style.display = 'none';
   }
+});
+
+// ---------- Edit Expense ----------
+function openEditModal(id) {
+  const expense = expenses.find(exp => exp.id === id);
+  if (!expense) return;
+
+  editingExpenseId = id;
+  editNameInput.value = expense.name;
+  editAmountInput.value = expense.amount;
+  editDateInput.value = expense.date;
+
+  if (MAIN_CATEGORIES.includes(expense.category)) {
+    editCategoryInput.value = expense.category;
+    editCustomCategoryInput.style.display = 'none';
+    editCustomCategoryInput.value = '';
+  } else {
+    editCategoryInput.value = 'Others';
+    editCustomCategoryInput.style.display = 'block';
+    editCustomCategoryInput.value = expense.category;
+  }
+
+  editModal.style.display = 'flex';
+}
+
+function closeEditModal() {
+  editingExpenseId = null;
+  editModal.style.display = 'none';
+}
+
+cancelEditBtn.addEventListener('click', closeEditModal);
+
+editModal.addEventListener('click', (e) => {
+  if (e.target === editModal) closeEditModal();
+});
+
+saveEditBtn.addEventListener('click', () => {
+  if (editingExpenseId === null) return;
+  const expense = expenses.find(exp => exp.id === editingExpenseId);
+  if (!expense) return;
+
+  const chosenCategory = editCategoryInput.value === 'Others' && editCustomCategoryInput.value.trim()
+    ? editCustomCategoryInput.value.trim()
+    : editCategoryInput.value;
+
+  expense.name = editNameInput.value.trim();
+  expense.amount = parseFloat(editAmountInput.value);
+  expense.category = chosenCategory;
+  expense.date = editDateInput.value;
+
+  saveExpenses();
+  refreshPeriodOptions(false);
+  renderAll();
+  closeEditModal();
 });
 
 // ---------- Category Filter ----------
