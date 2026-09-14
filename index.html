@@ -6,35 +6,36 @@
 <title>MiEx</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700;800&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=3">
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#1E2A3A">
+<meta name="theme-color" content="#7C6FE0">
 <link rel="icon" href="icons/icon-192.png" type="image/png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 </head>
 <body>
 
-  <!-- Minimal glow background -->
-  <div class="glow-bg glow-bg-light" aria-hidden="true">
-    <div class="glow-orb glow-orb-1"></div>
-    <div class="glow-orb glow-orb-2"></div>
-  </div>
-  <div class="glow-bg glow-bg-dark" aria-hidden="true">
-    <div class="glow-orb glow-orb-3"></div>
-    <div class="glow-orb glow-orb-4"></div>
-  </div>
-
   <div class="app">
     <header class="app-header">
       <div class="brand">
         <span class="brand-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></svg>
         </span>
-        <h1>MiEx</h1>
+        <div class="brand-text">
+          <h1>MiEx</h1>
+          <p class="brand-tagline">Track &middot; Save &middot; Grow</p>
+        </div>
       </div>
-      <button id="darkModeToggle" class="icon-btn" title="Toggle dark mode">🌙</button>
+      <div class="header-actions">
+        <button id="darkModeToggle" class="icon-btn" title="Toggle dark mode">🌙</button>
+        <span class="avatar" id="avatar" title="Tap to set your name">?</span>
+      </div>
     </header>
+
+    <div class="greeting">
+      <p class="greeting-text" id="greetingText">Good evening, Golden 👋</p>
+      <p class="greeting-sub">Here's your spending overview</p>
+    </div>
 
     <div class="period-tabs" id="periodTabs">
       <button class="period-btn active" data-period="all">All Time</button>
@@ -53,8 +54,23 @@
     </div>
 
     <section class="balance-card">
-      <p class="balance-label" id="balanceLabel">Total Expenses</p>
+      <button id="toggleVisibility" class="eye-btn" title="Show/hide amount">👁️</button>
+      <p class="balance-label" id="balanceLabel">Total Spent</p>
       <h2 id="balance">₦0.00</h2>
+    </section>
+
+    <div class="insight-banner" id="insightBanner" style="display:none;">
+      <span class="insight-icon">🌿</span>
+      <p class="insight-text" id="insightText"></p>
+      <button class="insight-dismiss" id="insightDismiss" title="Dismiss">✕</button>
+    </div>
+
+    <section class="budget-card">
+      <div class="budget-header">
+        <h3>Monthly Budget</h3>
+        <button id="editBudgetBtn" class="edit-budget-btn" title="Set budget">✏️</button>
+      </div>
+      <div id="budgetContent"></div>
     </section>
 
     <section class="form-card">
@@ -79,32 +95,81 @@
       <div class="list-card">
         <div class="list-header">
           <h3>Expenses</h3>
-          <div class="filters" id="filters">
-            <button class="filter-btn active" data-category="All">All</button>
-            <button class="filter-btn" data-category="Feeding">Feeding</button>
-            <button class="filter-btn" data-category="Clothing">Clothing</button>
-            <button class="filter-btn" data-category="Transportation">Transportation</button>
-            <button class="filter-btn" data-category="Bills">Bills</button>
-            <button class="filter-btn" data-category="Others">Others</button>
-          </div>
+        </div>
+        <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search expenses">
+        <div class="filters" id="filters">
+          <button class="filter-btn active" data-category="All">All</button>
+          <button class="filter-btn" data-category="Feeding">Feeding</button>
+          <button class="filter-btn" data-category="Clothing">Clothing</button>
+          <button class="filter-btn" data-category="Transportation">Transportation</button>
+          <button class="filter-btn" data-category="Bills">Bills</button>
+          <button class="filter-btn" data-category="Others">Others</button>
         </div>
         <ul id="expenseList" class="expense-list"></ul>
       </div>
 
       <div class="chart-card">
         <h3>Spending by Category</h3>
-        <canvas id="categoryChart"></canvas>
+        <div class="chart-wrap">
+          <canvas id="categoryChart"></canvas>
+        </div>
       </div>
     </section>
 
     <section class="trend-card">
       <h3>Spending Trend (Last 6 Months)</h3>
-      <canvas id="trendChart"></canvas>
+      <div class="chart-wrap chart-wrap-trend">
+        <canvas id="trendChart"></canvas>
+      </div>
     </section>
 
     <footer class="app-footer">
       &copy; <span id="footerYear"></span> MiEx &middot; Developed by Golden_TCD
     </footer>
+  </div>
+
+  <div id="nameModal" class="modal-overlay" style="display:none;">
+    <div class="modal-box">
+      <p class="modal-text">What should we call you?</p>
+      <input type="text" id="userNameInput" class="name-input" placeholder="Your name" maxlength="20">
+      <div class="modal-actions">
+        <button id="saveName" class="btn-primary-modal">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="budgetModal" class="modal-overlay" style="display:none;">
+    <div class="modal-box">
+      <p class="modal-text">Set your monthly budget</p>
+      <input type="number" id="budgetInput" class="name-input" placeholder="e.g. 50000" step="0.01" min="0">
+      <div class="modal-actions">
+        <button id="clearBudget" class="btn-secondary">Remove</button>
+        <button id="saveBudget" class="btn-primary-modal">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="editModal" class="modal-overlay" style="display:none;">
+    <div class="modal-box">
+      <p class="modal-text">Edit Expense</p>
+      <div class="edit-fields">
+        <input type="text" id="editName" class="name-input" placeholder="Expense name">
+        <input type="number" id="editAmount" class="name-input" placeholder="Amount" step="0.01">
+        <select id="editCategory" class="name-input">
+          <option value="Feeding">Feeding</option>
+          <option value="Clothing">Clothing</option>
+          <option value="Transportation">Transportation</option>
+          <option value="Bills">Bills</option>
+          <option value="Others">Others</option>
+        </select>
+        <input type="text" id="editCustomCategory" class="name-input" placeholder="Specify category" style="display:none;">
+        <input type="date" id="editDate" class="name-input">
+      </div>
+      <div class="modal-actions">
+        <button id="cancelEdit" class="btn-secondary">Cancel</button>
+        <button id="saveEdit" class="btn-primary-modal">Save Changes</button>
+      </div>
+    </div>
   </div>
 
   <div id="confirmModal" class="modal-overlay" style="display:none;">
@@ -118,6 +183,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="script.js"></script>
+  <script src="script.js?v=3"></script>
 </body>
 </html>
