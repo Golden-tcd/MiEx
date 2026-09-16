@@ -7,9 +7,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700;800&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=3">
+<link rel="stylesheet" href="style.css?v=6">
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#7C6FE0">
+<meta name="theme-color" content="#F68B1E">
 <link rel="icon" href="icons/icon-192.png" type="image/png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 </head>
@@ -39,10 +39,10 @@
 
     <div class="period-tabs" id="periodTabs">
       <button class="period-btn active" data-period="all">All Time</button>
+      <button class="period-btn" data-period="custom">Custom</button>
       <button class="period-btn" data-period="week">Week</button>
       <button class="period-btn" data-period="month">Month</button>
       <button class="period-btn" data-period="year">Year</button>
-      <button class="period-btn" data-period="custom">Custom</button>
     </div>
 
     <select id="periodValueSelect" class="period-value-select" style="display:none;"></select>
@@ -113,6 +113,7 @@
         <div class="chart-wrap">
           <canvas id="categoryChart"></canvas>
         </div>
+        <div class="chart-legend" id="categoryLegend"></div>
       </div>
     </section>
 
@@ -124,7 +125,8 @@
     </section>
 
     <footer class="app-footer">
-      &copy; <span id="footerYear"></span> MiEx &middot; Developed by Golden_TCD
+      &copy; <span id="footerYear"></span> MiEx
+      <span class="footer-tagline">Golden_TCD &middot; building things that didn't exist yesterday</span>
     </footer>
   </div>
 
@@ -183,6 +185,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="script.js?v=3"></script>
+  <script src="script.js?v=6"></script>
 </body>
 </html>
