@@ -1,7 +1,9 @@
-const CACHE_NAME = 'miex-cache-v2';
+const CACHE_NAME = 'miex-cache-v3';
+
+// Only static assets that rarely change get an offline backup.
+// index.html is deliberately excluded — it should always come from
+// the network when online, so edits/fixes are never masked by a stale copy.
 const ASSETS_TO_CACHE = [
-  './',
-  './index.html',
   './style.css',
   './script.js',
   './manifest.json',
@@ -9,10 +11,19 @@ const ASSETS_TO_CACHE = [
   './icons/icon-512.png'
 ];
 
-// Install: pre-cache core app shell (used only as an offline fallback)
+// Install: back up each asset individually so one bad path doesn't
+// silently fail the whole install (which was blocking installability).
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS_TO_CACHE))
+    caches.open(CACHE_NAME).then((cache) =>
+      Promise.all(
+        ASSETS_TO_CACHE.map((url) =>
+          cache.add(url).catch((err) => {
+            console.warn('Service worker: failed to pre-cache', url, err);
+          })
+        )
+      )
+    )
   );
   self.skipWaiting();
 });
@@ -27,9 +38,26 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch: network-first, so edits (and cache-busted ?v= files) always win when online.
-// Falls back to cache (ignoring query strings) only when offline.
+// Fetch strategy:
+// - Page navigations (loading index.html itself): network-only.
+//   Never served from cache, so fixes/edits always show immediately.
+// - Everything else (CSS/JS/icons): network-first, falling back to the
+//   cached backup only if there's genuinely no connection.
 self.addEventListener('fetch', (event) => {
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request).catch(() =>
+        new Response(
+          '<h1>You appear to be offline.</h1><p>Reconnect and reload to use MiEx.</p>',
+          { headers: { 'Content-Type': 'text/html' } }
+        )
+      )
+    );
+    return;
+  }
+
+  if (event.request.method !== 'GET') return;
+
   event.respondWith(
     fetch(event.request)
       .then((response) => {
@@ -37,8 +65,6 @@ self.addEventListener('fetch', (event) => {
         caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
         return response;
       })
-      .catch(() =>
-        caches.match(event.request, { ignoreSearch: true })
-      )
+      .catch(() => caches.match(event.request, { ignoreSearch: true }))
   );
 });
