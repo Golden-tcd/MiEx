@@ -1,4 +1,4 @@
-const CACHE_NAME = 'miex-cache-v3';
+const CACHE_NAME = 'miex-cache-v4';
 
 // Only static assets that rarely change get an offline backup.
 // index.html is deliberately excluded — it should always come from
@@ -8,7 +8,16 @@ const ASSETS_TO_CACHE = [
   './script.js',
   './manifest.json',
   './icons/icon-192.png',
-  './icons/icon-512.png'
+  './icons/icon-512.png',
+  './vendor/js/chart.umd.js',
+  './vendor/fonts/quicksand-latin-500-normal.woff2',
+  './vendor/fonts/quicksand-latin-600-normal.woff2',
+  './vendor/fonts/quicksand-latin-700-normal.woff2',
+  './vendor/fonts/nunito-latin-400-normal.woff2',
+  './vendor/fonts/nunito-latin-500-normal.woff2',
+  './vendor/fonts/nunito-latin-600-normal.woff2',
+  './vendor/fonts/nunito-latin-700-normal.woff2',
+  './vendor/fonts/nunito-latin-800-normal.woff2'
 ];
 
 // Install: back up each asset individually so one bad path doesn't
