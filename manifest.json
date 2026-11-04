@@ -1,25 +1,34 @@
 {
+  "id": "miex-expense-tracker",
   "name": "MiEx - Expense Tracker",
   "short_name": "MiEx",
-  "description": "Track your expenses by category, view spending trends, and manage your budget — all in one place.",
-  "start_url": "./index.html",
+  "description": "A simple, private expense tracker. Log spending, set a monthly budget and see where your money goes. Works offline.",
+  "start_url": "./?source=pwa",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#FDF8F1",
   "theme_color": "#F68B1E",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["finance", "productivity", "lifestyle"],
   "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "screenshots": [
+    { "src": "icons/screenshot-1.png", "sizes": "1080x1920", "type": "image/png", "form_factor": "narrow", "label": "Your spending at a glance" },
+    { "src": "icons/screenshot-2.png", "sizes": "1080x1920", "type": "image/png", "form_factor": "narrow", "label": "See where your money goes" }
+  ],
+  "shortcuts": [
     {
-      "src": "icons/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icons/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
+      "name": "Add expense",
+      "short_name": "Add",
+      "description": "Log a new expense",
+      "url": "./?action=add",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
     }
   ]
 }

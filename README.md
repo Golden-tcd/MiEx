@@ -1,55 +1,47 @@
 # MiEx
 
-A frontend personal expense tracker built with vanilla HTML, CSS, and JavaScript. Track spending by category, set a monthly budget with overspend alerts, search and edit past entries, and browse your history by week, month, year, or a custom date range — all wrapped in a light/dark themed UI.
+A private, offline-capable personal expense tracker built with vanilla HTML, CSS and JavaScript. Track spending by category, set a monthly budget with alerts, browse your history, and back up your data — with no accounts and no servers.
 
 **Live demo:** https://golden-tcd.github.io/MiEx/
 
 ## Features
 
-- Add, search, and edit expenses (name, amount, category, date)
-- Categories: Feeding, Clothing, Transportation, Bills, and a custom "Others" option
-- Interactive doughnut chart showing spending by category, with percentages
-- Bar chart showing spending trend over the last 6 months
-- Monthly budget tracking with a progress bar and overspend alerts
-- Dismissible month-over-month spending insight banner
-- Filter totals and expense list by **All Time**, **This Week**, **This Month**, **This Year**, or a **Custom Date Range**
-- Browse history — jump back to any previous week, month, or year
-- Confirmation prompt before deleting an expense
-- Personalized greeting and avatar (name set once, remembered locally)
-- Balance visibility toggle (hide/reveal the total)
-- Light/dark mode toggle
-- Data persists locally via `localStorage` — no backend required
-- Fully responsive UI
+- Add, search, edit and delete expenses (with confirmation before deleting)
+- Categories: Feeding, Clothing, Transportation, Bills, and custom "Others"
+- Doughnut chart by category and a 6-month spending trend chart
+- Monthly budget with progress bar and overspend alerts
+- Month-to-date insight versus the same days last month
+- Filter by All Time, Week, Month, Year or a custom date range, and browse past periods
+- **Backup & restore** (JSON), **CSV export**, and a "delete all my data" option
+- 8 currencies (Naira, Cedi, Shilling, Rand, Dollar, Pound, Euro, Rupee)
+- Light/dark mode (follows your phone by default)
+- **Installable and fully offline** (service worker; fonts and Chart.js are bundled locally)
+- Private by design: all data stays in the browser's `localStorage`; see [privacy.html](privacy.html)
 
-## Tech Stack
+## Tech stack
 
-- HTML5
-- CSS3 (custom properties, responsive layout)
-- Vanilla JavaScript
-- [Chart.js](https://www.chartjs.org/) for data visualization
+HTML5 · CSS3 (custom properties) · Vanilla JavaScript · [Chart.js](https://www.chartjs.org/) (bundled)
 
-## Project Structure
+## Project structure
 
 ```
 MiEx/
 ├── index.html
 ├── style.css
-└── script.js
+├── script.js
+├── service-worker.js
+├── manifest.json
+├── privacy.html
+├── icons/            app icons + manifest screenshots
+└── vendor/
+    ├── js/chart.umd.js
+    └── fonts/        Quicksand + Nunito (woff2)
 ```
 
-## Running Locally
+## Running locally
 
-Clone the repo and open `index.html` in your browser — no build step or dependencies to install.
-
-```bash
-git clone https://github.com/Golden-tcd/MiEx.git
-cd MiEx
-```
-
-Then just open `index.html` directly, or serve it with any static server.
+No build step. Serve the folder with any static server (a service worker needs `http://localhost` or HTTPS) and open `index.html`.
 
 ## Author
 
-Built by [Golden](https://github.com/Golden-tcd) — Computer Science student, Nigerian Army University Biu (NAUB).
-
-Golden_TCD · building things that didn't exist yesterday
+Built by Golden_TCD — building things that didn't exist yesterday.
