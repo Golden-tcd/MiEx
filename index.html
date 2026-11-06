@@ -10,13 +10,15 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>MiEx - Expense Tracker</title>
 <script>try{var d=localStorage.getItem('darkMode');if(d==='true'||(d===null&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark')}}catch(e){}</script>
-<link rel="stylesheet" href="style.css?v=9">
+<link rel="stylesheet" href="style.css?v=10">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#F68B1E">
 <link rel="icon" href="icons/icon-192.png" type="image/png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 </head>
 <body>
+
+  <div id="menuBackdrop" class="menu-backdrop" hidden></div>
 
   <div class="app">
     <header class="app-header">
@@ -30,9 +32,21 @@
         </div>
       </div>
       <div class="header-actions">
-        <button id="settingsBtn" class="icon-btn" title="Settings" aria-label="Settings">⚙️</button>
         <button id="darkModeToggle" class="icon-btn" title="Toggle dark mode" aria-label="Toggle dark mode">🌙</button>
-        <button id="avatar" class="avatar" title="Tap to set your name" aria-label="Set your name">?</button>
+        <button id="menuBtn" class="avatar menu-btn" title="Menu" aria-label="Open menu" aria-haspopup="true" aria-expanded="false" aria-controls="menuPanel">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+        <div id="menuPanel" class="menu-panel" role="menu" aria-label="MiEx menu" hidden>
+          <div class="menu-user">
+            <span class="menu-avatar" id="menuAvatar" aria-hidden="true">?</span>
+            <div><strong id="menuName">Welcome</strong><small>MiEx</small></div>
+          </div>
+          <button class="menu-item" role="menuitem" data-action="settings"><span class="menu-ico" aria-hidden="true">⚙️</span>Settings</button>
+          <button class="menu-item" role="menuitem" data-action="contact"><span class="menu-ico" aria-hidden="true">✉️</span>Contact us</button>
+          <button class="menu-item" role="menuitem" data-action="about"><span class="menu-ico" aria-hidden="true">ℹ️</span>About MiEx</button>
+          <a class="menu-item" role="menuitem" href="privacy.html" target="_blank" rel="noopener"><span class="menu-ico" aria-hidden="true">🔒</span>Privacy policy</a>
+          <button class="menu-item" role="menuitem" data-action="share"><span class="menu-ico" aria-hidden="true">📤</span>Share MiEx</button>
+        </div>
       </div>
     </header>
 
@@ -193,6 +207,13 @@
         <button id="closeSettings" class="modal-close" aria-label="Close settings">✕</button>
       </div>
 
+      <h4 class="set-title">Profile</h4>
+      <label class="set-label" for="settingsName">Your name</label>
+      <div class="name-row">
+        <input type="text" id="settingsName" class="name-input" placeholder="Your name" maxlength="20" autocomplete="off">
+        <button id="saveSettingsName" class="set-btn set-btn-primary">Save</button>
+      </div>
+
       <h4 class="set-title">Your data</h4>
       <p class="set-note">MiEx keeps everything on this device only. Make a backup so you never lose it.</p>
       <div class="set-grid">
@@ -221,6 +242,39 @@
       <p class="set-links"><a href="privacy.html" target="_blank" rel="noopener">Privacy policy</a></p>
 
       <button id="clearDataBtn" class="set-btn set-btn-danger">Delete all my data</button>
+    </div>
+  </div>
+
+  <div id="aboutModal" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="aboutTitle">
+    <div class="modal-box">
+      <div class="modal-head">
+        <p class="modal-text" id="aboutTitle">About MiEx</p>
+        <button id="closeAbout" class="modal-close" aria-label="Close">✕</button>
+      </div>
+      <div class="about-logo" aria-hidden="true">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></svg>
+      </div>
+      <p class="about-name">MiEx</p>
+      <p class="about-version">Version <span id="aboutVersion"></span></p>
+      <p class="set-note">A simple, private expense tracker. Log your spending, set a monthly budget and see where your money goes. Everything is stored on your own device and works offline.</p>
+      <p class="set-note">Built by Golden_TCD<br>building things that didn't exist yesterday</p>
+      <p class="set-links"><a href="privacy.html" target="_blank" rel="noopener">Privacy policy</a></p>
+    </div>
+  </div>
+
+  <div id="contactModal" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="contactTitle">
+    <div class="modal-box">
+      <div class="modal-head">
+        <p class="modal-text" id="contactTitle">Contact us</p>
+        <button id="closeContact" class="modal-close" aria-label="Close">✕</button>
+      </div>
+      <p class="set-note">Found a bug, have an idea, or just want to say hi? We'd love to hear from you.</p>
+      <p class="contact-email" id="contactEmail"></p>
+      <p class="set-note set-note-small">Your email will include the app version and your device type so problems are easier to fix. You can delete that before sending.</p>
+      <div class="modal-actions modal-actions-wrap">
+        <button id="copyEmailBtn" class="btn-secondary">Copy email</button>
+        <a id="sendEmailLink" class="btn-primary-modal link-btn" href="#">Send email</a>
+      </div>
     </div>
   </div>
 
@@ -260,6 +314,6 @@
   </div>
 
   <script src="vendor/js/chart.umd.js"></script>
-  <script src="script.js?v=9"></script>
+  <script src="script.js?v=10"></script>
 </body>
 </html>

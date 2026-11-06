@@ -5,7 +5,9 @@
    Everything runs in the browser; data is stored in localStorage only.
    ===================================================================== */
 
-const APP_VERSION = '1.0.0';
+const APP_VERSION = '1.1.0';
+// Shown in "Contact us". Change this to the email you want people to write to.
+const CONTACT_EMAIL = 'goodluckjohn260@gmail.com';
 
 /* ---------- Service worker (registered first so a later error can never block it) ---------- */
 if ('serviceWorker' in navigator) {
@@ -185,9 +187,10 @@ const customRangeEl = $('customRange');
 const customFromInput = $('customFrom');
 const customToInput = $('customTo');
 const darkModeToggle = $('darkModeToggle');
-const settingsBtn = $('settingsBtn');
 const greetingText = $('greetingText');
-const avatarEl = $('avatar');
+const menuBtn = $('menuBtn');
+const menuPanel = $('menuPanel');
+const menuBackdrop = $('menuBackdrop');
 const insightBanner = $('insightBanner');
 const insightText = $('insightText');
 const insightDismissBtn = $('insightDismiss');
@@ -212,6 +215,8 @@ const confirmModal = $('confirmModal');
 const settingsModal = $('settingsModal');
 const importModal = $('importModal');
 const clearModal = $('clearModal');
+const aboutModal = $('aboutModal');
+const contactModal = $('contactModal');
 
 $('footerYear').textContent = new Date().getFullYear();
 
@@ -256,6 +261,7 @@ document.querySelectorAll('.modal-overlay').forEach((m) => {
 
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
+  if (!menuPanel.hidden) { closeMenu(); menuBtn.focus(); return; }
   const open = Array.from(document.querySelectorAll('.modal-overlay')).filter((m) => m.style.display !== 'none');
   if (open.length) dismissModal(open[open.length - 1]);
 });
@@ -290,7 +296,10 @@ function getUserName() { return store.get('userName', ''); }
 
 function updateAvatar() {
   const name = getUserName();
-  avatarEl.textContent = name ? name.charAt(0).toUpperCase() : '?';
+  $('menuAvatar').textContent = name ? name.charAt(0).toUpperCase() : '?';
+  $('menuName').textContent = name || 'Welcome';
+  const field = $('settingsName');
+  if (field && document.activeElement !== field) field.value = name;
 }
 
 function setGreeting() {
@@ -317,7 +326,6 @@ function saveUserName() {
   updateAvatar();
 }
 
-avatarEl.addEventListener('click', openNameModal);
 $('saveName').addEventListener('click', saveUserName);
 $('skipName').addEventListener('click', () => dismissModal(nameModal));
 userNameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') saveUserName(); });
@@ -1203,13 +1211,101 @@ async function refreshStatus() {
   }
 }
 
-settingsBtn.addEventListener('click', () => {
+function openSettings() {
   syncCurrencyUI();
   updateInstallUI();
   refreshStatus();
+  $('settingsName').value = getUserName();
   openModal(settingsModal);
-});
+}
 $('closeSettings').addEventListener('click', () => closeModal(settingsModal));
+
+/* ---------- Name field inside Settings ---------- */
+function saveSettingsName() {
+  const val = $('settingsName').value.trim().slice(0, 20);
+  if (val) {
+    store.set('userName', val);
+    showToast('Name saved ✓', 1800);
+  } else {
+    store.remove('userName');
+    showToast('Name removed', 1800);
+  }
+  store.set('nameAsked', '1');
+  setGreeting();
+  updateAvatar();
+}
+$('saveSettingsName').addEventListener('click', saveSettingsName);
+$('settingsName').addEventListener('keydown', (e) => { if (e.key === 'Enter') saveSettingsName(); });
+
+/* =====================================================================
+   Menu (top-right button): Settings, Contact us, About, Privacy, Share
+   ===================================================================== */
+function openMenu() {
+  updateAvatar();
+  menuPanel.hidden = false;
+  menuBackdrop.hidden = false;
+  menuBtn.setAttribute('aria-expanded', 'true');
+  const first = menuPanel.querySelector('.menu-item');
+  if (first) setTimeout(() => first.focus(), 30);
+}
+
+function closeMenu() {
+  menuPanel.hidden = true;
+  menuBackdrop.hidden = true;
+  menuBtn.setAttribute('aria-expanded', 'false');
+}
+
+menuBtn.addEventListener('click', () => { if (menuPanel.hidden) openMenu(); else closeMenu(); });
+menuBackdrop.addEventListener('click', closeMenu);
+
+function appShareUrl() { return location.origin + location.pathname.replace(/index\.html$/, ''); }
+
+async function shareApp() {
+  const url = appShareUrl();
+  const data = { title: 'MiEx', text: 'I use MiEx to track my spending. Try it:', url };
+  try {
+    if (navigator.share) { await navigator.share(data); return; }
+  } catch (err) {
+    if (err && err.name === 'AbortError') return;
+  }
+  try {
+    await navigator.clipboard.writeText(url);
+    showToast('Link copied ✓', 2200);
+  } catch (err) {
+    showToast(url, 6000);
+  }
+}
+
+function openContact() {
+  $('contactEmail').textContent = CONTACT_EMAIL;
+  const body = `\n\n---\nMiEx ${APP_VERSION} (${isStandalone() ? 'installed app' : 'browser'})\n${navigator.userAgent}`;
+  $('sendEmailLink').href = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('MiEx feedback')}&body=${encodeURIComponent(body)}`;
+  openModal(contactModal);
+}
+
+function openAbout() {
+  $('aboutVersion').textContent = APP_VERSION;
+  openModal(aboutModal);
+}
+
+menuPanel.addEventListener('click', (e) => {
+  const item = e.target.closest('.menu-item');
+  if (!item) return;
+  const action = item.dataset.action;
+  closeMenu();
+  if (!action) return; // the Privacy policy link just opens normally
+  if (action === 'settings') openSettings();
+  else if (action === 'contact') openContact();
+  else if (action === 'about') openAbout();
+  else if (action === 'share') shareApp();
+});
+
+$('closeAbout').addEventListener('click', () => closeModal(aboutModal));
+$('closeContact').addEventListener('click', () => closeModal(contactModal));
+$('copyEmailBtn').addEventListener('click', async () => {
+  try { await navigator.clipboard.writeText(CONTACT_EMAIL); showToast('Email copied ✓', 1800); }
+  catch (err) { showToast(CONTACT_EMAIL, 5000); }
+});
 
 window.addEventListener('online', () => showToast('Back online', 1800));
 window.addEventListener('offline', () => showToast("You're offline — MiEx still works.", 2600));
